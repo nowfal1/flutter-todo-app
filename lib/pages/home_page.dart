@@ -93,10 +93,53 @@ class _HomePageState extends State<HomePage> {
                   ),
                   trailing: Checkbox(
                     value: todo.isdone,
-                    onChanged: (value) {
-                      Todo updatedTodo = todo.copyWith(
-                          isDone: !todo.isdone, updatedOn: Timestamp.now());
-                      _databaseService.updateTodo(todoId, updatedTodo);
+                    onChanged: (value) async {
+                      bool? confirm = await showDialog<bool>(
+                        context: context,
+                        builder: (context) {
+                          return AlertDialog(
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(0),
+                              side: BorderSide(
+                                  color: Colors.grey.shade400, width: 1),
+                            ),
+                            title: const Text("Are You Completed the Task?"),
+                            contentPadding:
+                                const EdgeInsets.fromLTRB(24, 20, 24, 24),
+                            actionsPadding: const EdgeInsets.symmetric(
+                                horizontal: 10, vertical: 5),
+                            actions: [
+                              OutlinedButton(
+                                style: OutlinedButton.styleFrom(
+                                  side: BorderSide(
+                                      color: Colors.grey.shade600, width: 1),
+                                  shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(4)),
+                                ),
+                                onPressed: () {
+                                  Navigator.of(context).pop(false);
+                                },
+                                child: const Text("no, i haven't"),
+                              ),
+                              OutlinedButton(
+                                style: OutlinedButton.styleFrom(
+                                  side:
+                                      BorderSide(color: Colors.blue, width: 1),
+                                  shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(4)),
+                                ),
+                                onPressed: () {
+                                  Navigator.of(context).pop(true);
+                                },
+                                child: const Text("yes i have"),
+                              ),
+                            ],
+                          );
+                        },
+                      );
+                      if (confirm == true) {
+                        _databaseService.deleteTodo(todoId);
+                      }
                     },
                   ),
                   onLongPress: () {
@@ -134,6 +177,10 @@ class _HomePageState extends State<HomePage> {
                 Navigator.pop(context);
                 _textEditingController.clear();
               },
+              child: const Text(
+                'Ok',
+                style: TextStyle(color: Colors.white),
+              ),
             ),
           ],
         );
